@@ -21,28 +21,48 @@ export async function getApplications(userId: string) {
   return data;
 }
 
-export async function createApplication(application: Partial<Application> & { user_id: string }) {
+export async function createApplication(application: Partial<Application> & { 
+  user_id: string;
+  reminder_days?: number | null;
+  custom_reminder_date?: string | null;
+}) {
+  const { reminder_days, custom_reminder_date, ...appData } = application;
+  
   const { data, error } = await supabase
     .from('applications')
-    .insert(application)
+    .insert(appData)
     .select()
     .single();
   
   if (error) throw error;
   
-  const appliedDate = new Date(application.applied_date || new Date());
-  const followUpDate = new Date(appliedDate);
-  followUpDate.setDate(followUpDate.getDate() + 7);
+  const reminderDays = reminder_days;
   
-  await supabase
-    .from('follow_ups')
-    .insert({
-      user_id: application.user_id,
-      application_id: data.id,
-      type: 'email',
-      scheduled_date: followUpDate.toISOString().split('T')[0],
-      completed: false,
-    });
+  if (reminderDays !== null && reminderDays !== undefined && reminderDays > 0) {
+    const appliedDate = new Date(application.applied_date || new Date());
+    const followUpDate = new Date(appliedDate);
+    followUpDate.setDate(followUpDate.getDate() + reminderDays);
+    
+    await supabase
+      .from('follow_ups')
+      .insert({
+        user_id: application.user_id,
+        application_id: data.id,
+        type: 'email',
+        scheduled_date: followUpDate.toISOString().split('T')[0],
+        completed: false,
+      });
+  } else if (custom_reminder_date) {
+    await supabase
+      .from('follow_ups')
+      .insert({
+        user_id: application.user_id,
+        application_id: data.id,
+        type: 'email',
+        scheduled_date: custom_reminder_date,
+        completed: false,
+      });
+  }
   
   return data;
 }
@@ -153,4 +173,41 @@ export async function generateFollowUpSuggestions(userId: string) {
   }
   
   return suggestions;
+}
+
+export type EmailPreferences = {
+  id: string;
+  user_id: string;
+  daily_digest_enabled: boolean;
+  digest_time: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export async function getEmailPreferences(userId: string) {
+  const { data, error } = await supabase
+    .from('email_preferences')
+    .select('*')
+    .eq('user_id', userId)
+    .single();
+  
+  if (error && error.code !== 'PGRST116') throw error;
+  return data;
+}
+
+export async function updateEmailPreferences(
+  userId: string, 
+  updates: { daily_digest_enabled?: boolean; digest_time?: string }
+) {
+  const { data, error } = await supabase
+    .from('email_preferences')
+    .upsert({
+      user_id: userId,
+      ...updates,
+    })
+    .select()
+    .single();
+  
+  if (error) throw error;
+  return data;
 }

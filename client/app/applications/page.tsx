@@ -40,6 +40,16 @@ const currencyOptions = [
   { value: "SGD", label: "SGD (S$)", symbol: "S$" },
 ];
 
+const reminderOptions = [
+  { value: "0", label: "Don't remind" },
+  { value: "3", label: "3 days" },
+  { value: "7", label: "1 week" },
+  { value: "14", label: "2 weeks" },
+  { value: "21", label: "3 weeks" },
+  { value: "30", label: "1 month" },
+  { value: "custom", label: "Custom date" },
+];
+
 function getCurrencySymbol(code: string): string {
   return currencyOptions.find(c => c.value === code)?.symbol || "$";
 }
@@ -82,6 +92,8 @@ export default function ApplicationsPage() {
     currency: "USD",
     location: "",
     notes: "",
+    reminder_days: "7",
+    custom_reminder_date: "",
   });
 
   useEffect(() => {
@@ -125,6 +137,8 @@ export default function ApplicationsPage() {
         currency: parsed.currency,
         location: app.location || "",
         notes: app.notes || "",
+        reminder_days: "7",
+        custom_reminder_date: "",
       });
     } else {
       setEditingApp(null);
@@ -138,6 +152,8 @@ export default function ApplicationsPage() {
         currency: "USD",
         location: "",
         notes: "",
+        reminder_days: "7",
+        custom_reminder_date: "",
       });
     }
     setShowModal(true);
@@ -168,12 +184,26 @@ export default function ApplicationsPage() {
       notes: form.notes,
     };
 
+    const reminderDays = form.reminder_days === "custom" 
+      ? null 
+      : parseInt(form.reminder_days);
+    
+    let customReminderDate = null;
+    if (form.reminder_days === "custom" && form.custom_reminder_date) {
+      customReminderDate = form.custom_reminder_date;
+    }
+
     setSubmitting(true);
     try {
       if (editingApp) {
         await updateApplication(editingApp.id, applicationData);
       } else {
-        await createApplication({ ...applicationData, user_id: userId });
+        await createApplication({ 
+          ...applicationData, 
+          user_id: userId,
+          reminder_days: reminderDays,
+          custom_reminder_date: customReminderDate,
+        });
       }
       await fetchApplications(userId);
       closeModal();
@@ -469,6 +499,42 @@ export default function ApplicationsPage() {
                   />
                 </div>
               </div>
+
+              {!editingApp && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Follow-up Reminder</label>
+                  <div className="flex gap-2">
+                    <select
+                      value={form.reminder_days}
+                      onChange={(e) => setForm({ ...form, reminder_days: e.target.value })}
+                      className="flex-1 px-4 py-2.5 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                    >
+                      {reminderOptions.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                    {form.reminder_days === "custom" && (
+                      <input
+                        type="date"
+                        value={form.custom_reminder_date}
+                        onChange={(e) => setForm({ ...form, custom_reminder_date: e.target.value })}
+                        min={form.applied_date}
+                        className="flex-1 px-4 py-2.5 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                      />
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {form.reminder_days === "0" 
+                      ? "No reminder will be created"
+                      : form.reminder_days === "custom" && form.custom_reminder_date
+                      ? `Reminder will be on ${new Date(form.custom_reminder_date).toLocaleDateString()}`
+                      : `You'll be reminded in ${reminderOptions.find(o => o.value === form.reminder_days)?.label.toLowerCase() || "1 week"}`
+                    }
+                  </p>
+                </div>
+              )}
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">Notes</label>

@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/components/AuthProvider";
-import { supabase } from "@/lib/supabase";
+import { supabase, getEmailPreferences, updateEmailPreferences } from "@/lib/supabase";
+import type { EmailPreferences } from "@/lib/supabase";
 import {
   User,
   Mail,
+  Bell,
   LogOut,
   Loader2,
   CheckCircle2,
@@ -16,6 +18,50 @@ export default function SettingsPage() {
   const { user, signOut } = useAuth();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [emailPrefs, setEmailPrefs] = useState<EmailPreferences | null>(null);
+  const [digestEnabled, setDigestEnabled] = useState(true);
+  const [digestTime, setDigestTime] = useState("09:00");
+  const [prefsLoading, setPrefsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+    
+    async function loadPrefs() {
+      try {
+        const prefs = await getEmailPreferences(user.id);
+        if (prefs) {
+          setEmailPrefs(prefs);
+          setDigestEnabled(prefs.daily_digest_enabled);
+          setDigestTime(prefs.digest_time?.substring(0, 5) || "09:00");
+        }
+      } catch (err) {
+        console.error("Error loading email preferences:", err);
+      } finally {
+        setPrefsLoading(false);
+      }
+    }
+    
+    loadPrefs();
+  }, [user]);
+
+  async function handleSaveEmailPrefs() {
+    if (!user) return;
+    setLoading(true);
+    setMessage(null);
+
+    try {
+      await updateEmailPreferences(user.id, {
+        daily_digest_enabled: digestEnabled,
+        digest_time: digestTime + ":00",
+      });
+      setMessage({ type: "success", text: "Email preferences saved!" });
+    } catch (err) {
+      console.error("Error saving email preferences:", err);
+      setMessage({ type: "error", text: "Failed to save preferences" });
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function handleUpdateProfile(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -140,6 +186,69 @@ export default function SettingsPage() {
               Save Changes
             </button>
           </form>
+        </section>
+
+        <section className="bg-card rounded-2xl border border-border p-6">
+          <div className="flex items-center gap-2 mb-6">
+            <Bell className="w-5 h-5 text-muted-foreground" />
+            <h2 className="text-lg font-semibold">Email Notifications</h2>
+          </div>
+
+          {prefsLoading ? (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span className="text-sm">Loading preferences...</span>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium">Daily Digest</p>
+                  <p className="text-sm text-muted-foreground">
+                    Get a daily email with your pending follow-ups
+                  </p>
+                </div>
+                <button
+                  onClick={() => setDigestEnabled(!digestEnabled)}
+                  className={`relative w-12 h-6 rounded-full transition-colors ${
+                    digestEnabled ? "bg-primary" : "bg-muted"
+                  }`}
+                >
+                  <span
+                    className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${
+                      digestEnabled ? "left-7" : "left-1"
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {digestEnabled && (
+                <div className="pt-4 border-t border-border">
+                  <label className="text-sm font-medium block mb-2">
+                    Digest Time
+                  </label>
+                  <input
+                    type="time"
+                    value={digestTime}
+                    onChange={(e) => setDigestTime(e.target.value)}
+                    className="px-4 py-2.5 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  />
+                  <p className="text-xs text-muted-foreground mt-2">
+                    When to receive your daily follow-up summary
+                  </p>
+                </div>
+              )}
+
+              <button
+                onClick={handleSaveEmailPrefs}
+                disabled={loading}
+                className="px-4 py-2.5 rounded-xl bg-primary text-primary-foreground font-medium hover:opacity-90 transition-opacity flex items-center gap-2 disabled:opacity-50"
+              >
+                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                Save Preferences
+              </button>
+            </div>
+          )}
         </section>
 
         <section className="bg-card rounded-2xl border border-border p-6">
