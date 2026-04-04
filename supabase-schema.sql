@@ -93,6 +93,7 @@ CREATE TABLE IF NOT EXISTS email_preferences (
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   daily_digest_enabled BOOLEAN DEFAULT TRUE,
   digest_time TIME DEFAULT '09:00:00',
+  last_sent_at TIMESTAMP WITH TIME ZONE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   UNIQUE(user_id)
@@ -118,3 +119,14 @@ CREATE TRIGGER update_email_preferences_updated_at
   BEFORE UPDATE ON email_preferences
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
+
+-- Add last_sent_at column if it doesn't exist (for existing deployments)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'email_preferences' AND column_name = 'last_sent_at'
+  ) THEN
+    ALTER TABLE email_preferences ADD COLUMN last_sent_at TIMESTAMP WITH TIME ZONE;
+  END IF;
+END $$;
