@@ -126,7 +126,7 @@ export default function ApplicationsPage() {
   function openModal(app?: Application) {
     if (app) {
       setEditingApp(app);
-      const parsed = parseSalaryForEdit(app.salary);
+      const parsed = parseSalaryForEdit(app.salary || "");
       setForm({
         company: app.company,
         role: app.role,
