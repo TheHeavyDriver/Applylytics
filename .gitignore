@@ -1,2 +1,53 @@
+# =========================
+# Node / Next.js (client)
+# =========================
+node_modules/
+client/node_modules/
+
+.next/
+client/.next/
+
+out/
+client/out/
+
+# =========================
+# Environment variables (VERY IMPORTANT)
+# =========================
 .env
-.env.local
+.env.*
+client/.env
+client/.env.*
+
+# =========================
+# Logs
+# =========================
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# =========================
+# OS / Editor junk
+# =========================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# =========================
+# Vercel
+# =========================
+.vercel
+
+# =========================
+# Build output
+# =========================
+dist/
+build/
+
+# =========================
+# Supabase (local dev only)
+# =========================
+supabase/.temp
+supabase/.branches
+supabase/.functions
