@@ -28,6 +28,8 @@ export default function SettingsPage() {
     
     async function loadPrefs() {
       try {
+        if (!user) return;
+
         const prefs = await getEmailPreferences(user.id);
         if (prefs) {
           setEmailPrefs(prefs);
