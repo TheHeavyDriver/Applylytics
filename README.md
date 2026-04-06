@@ -1,16 +1,18 @@
-# Applylytics - Smart Job Application Tracker
+# 📊 Applylytics - Smart Job Application Tracker
 
-A modern, full-featured job application tracking web app built with Next.js 16, Supabase, and Tailwind CSS.
+Applylytics is a full-stack web application that helps users track, manage, and analyze their job applications in one place.
+It provides insights into application progress, status distribution, and overall job hunt performance.
 
 ![Applylytics Dashboard](https://via.placeholder.com/1200x630/6366f1/ffffff?text=Applylytics)
 
-## Features
+## 🚀 Features
 
 ### Core Features
 - **Dashboard** - Overview of your job search with stats, charts, and smart insights
 - **Application Tracking** - Full CRUD for job applications with status management
 - **Intelligent Follow-ups** - Smart reminders for when to follow up on applications
 - **User Authentication** - Secure auth with email/password and Google OAuth
+- **Cloud Backend** - Persistent and scalable real-time database with Supabase
 
 ### Smart Insights
 - Automatic follow-up suggestions based on application age and status
@@ -30,64 +32,42 @@ A modern, full-featured job application tracking web app built with Next.js 16, 
 - Visual indicators for overdue follow-ups
 - Connect follow-ups to specific applications
 
-## Tech Stack
+## 🛠️ Tech Stack
 
-- **Frontend**: Next.js 16, React 19, TypeScript
-- **Styling**: Tailwind CSS v4
+- **Frontend**: Next.js, React, TypeScript, Tailwind CS
 - **Database**: Supabase (PostgreSQL)
 - **Authentication**: Supabase Auth
-- **Icons**: Lucide React
+- **Deployment**: Vercel
 
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+ installed
-- A Supabase account
-
-### 1. Clone and Install
-
+## ⚙️ Installation & Setup
+1. Clone the repository
+```bash
+git clone https://github.com/TheHeavyDriver/Applylytics.git
+cd Applylytics
+```
+2. Install dependencies
 ```bash
 cd client
 npm install
 ```
+3. Setup environment variables
 
-### 2. Set up Supabase
+Create a ``.env.local`` file:
 
-1. Create a new project at [supabase.com](https://supabase.com)
-2. Go to the SQL Editor in your Supabase dashboard
-3. Copy and paste the contents of `supabase-schema.sql` and execute it
-4. This will create the `applications` and `follow_ups` tables with Row Level Security policies
-
-### 3. Configure Environment Variables
-
-Create a `.env.local` file in the `client` directory:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+```bash
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
 ```
-
-Find these values in your Supabase dashboard under:
-- Settings > API > Project URL (for the URL)
-- Settings > API > Project API keys > `anon` key (for the anon key)
-
-### 4. Enable Google OAuth (Optional)
-
-1. In Supabase Dashboard, go to Authentication > Providers > Google
-2. Enable Google provider
-3. Add your Google OAuth credentials (Client ID and Client Secret)
-4. Configure the redirect URL in your Google Cloud Console
-
-### 5. Run the Development Server
-
+4. Run locally
 ```bash
 npm run dev
 ```
+App will run on:
+```bash
+http://localhost:3000
+```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-## Project Structure
+## 📂 Project Structure
 
 ```
 client/
@@ -116,7 +96,7 @@ client/
     └── globals.css            # Global styles & Tailwind config
 ```
 
-## Database Schema
+## 📂 Database Schema
 
 ### applications
 | Column | Type | Description |
@@ -147,7 +127,7 @@ client/
 | notes | TEXT | Additional notes |
 | created_at | TIMESTAMP | Creation timestamp |
 
-## Scripts
+## 💻 Scripts
 
 ```bash
 npm run dev      # Start development server
@@ -156,11 +136,8 @@ npm run start    # Start production server
 npm run lint     # Run ESLint
 npm run typecheck # Run TypeScript type checking
 ```
+## 🐛 Issues
 
-## Contributing
+If you find a bug or want to request a feature, open an issue.
 
-Contributions are welcome! Please feel free to submit a Pull Request.
 
-## License
-
-MIT
