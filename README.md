@@ -3,7 +3,11 @@
 Applylytics is a full-stack web application that helps users track, manage, and analyze their job applications in one place.
 It provides insights into application progress, status distribution, and overall job hunt performance.
 
-![Applylytics Dashboard](https://via.placeholder.com/1200x630/6366f1/ffffff?text=Applylytics)
+## Screenshots
+<img width="1864" height="1001" alt="2026-04-13_05-22" src="https://github.com/user-attachments/assets/21d357b0-1281-48cb-94fa-acc5795f85ce" />
+<img width="1862" height="1000" alt="2026-04-13_05-23" src="https://github.com/user-attachments/assets/ce53798e-4063-4f6e-92d3-fad70b6f6362" />
+
+
 
 ## 🚀 Features
 
